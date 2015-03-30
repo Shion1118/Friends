@@ -1,0 +1,11 @@
+name: Friends
+main: com.shion1118.friends.Friends
+description:
+author: Shion
+website: http://shion1118.com/
+version: 0.5.0
+
+commands:
+   friend:
+      description: Friend.
+      usage: /<command>
