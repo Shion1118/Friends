@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.shion1118</groupId>
   <artifactId>Friends</artifactId>
-  <version>0.5.0-SNAPSHOT</version>
+  <version>1.0.0</version>
     <build>
     <plugins>
       <plugin>

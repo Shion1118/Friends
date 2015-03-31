@@ -26,8 +26,7 @@ public class Friends extends JavaPlugin {
 	public static File friendFile;
 	public static FileConfiguration frienddata;
 
-	HashMap<Player, ArrayList<Player>> request = new HashMap<Player, ArrayList<Player>>();
-	HashMap<Player, Integer> requesttime = new HashMap<Player, Integer>();
+	HashMap<Player, HashMap<Player, Integer>> request = new HashMap<Player, HashMap<Player, Integer>>();
 
     @Override
     public void onEnable() {
@@ -125,7 +124,7 @@ public class Friends extends JavaPlugin {
 
     public void requestFriend(Player p, String name){
     	Player friend = Bukkit.getServer().getPlayer(name);
-    	ArrayList<Player> list = new ArrayList<Player>();
+    	HashMap<Player, Integer> list = new HashMap<Player, Integer>();
     	if(friend == null){
     		p.sendMessage(name + " §adoes not online");
     		return;
@@ -135,22 +134,29 @@ public class Friends extends JavaPlugin {
     		return;
     	}
 
-    	friend.sendMessage("§e" + p.getName() +" send Friend request to you.");
-    	friend.sendMessage("§eif you accept, please type §f/friend accept " + p.getName());
-
-    	if(request.containsKey(friend)){
-    		list = request.get(friend);
+    	if(request.containsKey(p)){
+    		list = request.get(p);
+    		if(list.containsKey(friend)){
+    			p.sendMessage("§aYou already send Friend request to§f"+ name + "§a.");
+    			return;
+    		}
     	}
-    	list.add(friend);
+
+    	p.sendMessage("§eSend Friend request to §f" + name);
+
+    	friend.sendMessage("§f" + p.getName() +"§e send Friend request to you.");
+    	friend.sendMessage("§eIf you accept, please type §f/friend accept " + p.getName());
+
+    	list.put(friend, 0);
     	request.put(p, list);
-    	requestTime(p,name);
+    	requestTime(p,friend,name);
 
     	return;
     }
 
     public void acceptFriend(Player p, String name){
     	Player friend = Bukkit.getServer().getPlayer(name);
-    	ArrayList<Player> list = new ArrayList<Player>();
+    	HashMap<Player, Integer> list = new HashMap<Player, Integer>();
     	if(!checkOnline(name)){
     		p.sendMessage(name + " §adoes not online");
     		return;
@@ -158,16 +164,18 @@ public class Friends extends JavaPlugin {
     	if(!request.containsKey(friend)){
     		p.sendMessage(name + " §adoes not send Friend request to you.");
     		return;
-    	} else if(!request.get(friend).contains(p)){
+    	} else if(!request.get(friend).containsKey(p)){
     		p.sendMessage(name + " §adoes not send Friend request to you.");
     		return;
     	}
 
-    	Bukkit.getServer().getScheduler().cancelTask(requesttime.get(friend));
-    	requesttime.remove(friend);
-
     	list = request.get(friend);
+
+    	Bukkit.getServer().getScheduler().cancelTask(list.get(p));
+
     	list.remove(p);
+    	request.put(friend, list);
+
     	frienddata.set(name+ "." + p.getName(), "");
     	frienddata.set(p.getName() + "." + name, "");
 
@@ -184,14 +192,17 @@ public class Friends extends JavaPlugin {
     	return;
     }
 
-    public void requestTime(final Player p, final String name){
+    public void requestTime(final Player p,final Player friend, final String name){
+    	HashMap<Player, Integer> list = new HashMap<Player, Integer>();
     	int requestID = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
     		public void run(){
     			request.remove(p);
     			p.sendMessage(name + " §adose not accept your Friend request.");
     		}
     	}, 1200L);
-    	requesttime.put(p, requestID);
+    	list = request.get(p);
+    	list.put(friend, requestID);
+    	request.put(p, list);
     }
 
     public void infoFriend(Player p,String name){

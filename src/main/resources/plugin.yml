@@ -3,7 +3,7 @@ main: com.shion1118.friends.Friends
 description:
 author: Shion
 website: http://shion1118.com/
-version: 0.5.0
+version: 1.0.0
 
 commands:
    friend:
